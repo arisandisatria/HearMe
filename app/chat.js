@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -11,38 +11,48 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { db, onValue, ref } from "../services/firebase";
 
 export default function ChatScreen() {
   const router = useRouter();
-  const [messages, setMessages] = useState([
-    {
-      id: "1",
-      sender: "volunteer",
-      text: "Halo, saya relawan yang bertugas hari ini. Apa yang sedang kamu rasakan sekarang? Kamu aman di sini.",
-    },
-  ]);
   const [inputText, setInputText] = useState("");
+  const [messages, setMessages] = useState([]);
 
-  const sendMessage = () => {
+  const roomId = "room_1";
+
+  useEffect(() => {
+    const chatRef = ref(db, `chat/${roomId}/messages`);
+
+    const unsubscribe = onValue(chatRef, (snapshot) => {
+      const data = snapshot.val();
+
+      if (data) {
+        const loadedMessages = Object.keys(data).map((key) => ({
+          id: key,
+          ...data[key],
+        }));
+        setMessages(loadedMessages);
+      } else {
+        setMessages([]);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const sendMessage = async () => {
     if (!inputText.trim()) return;
-    const newMsg = {
-      id: Date.now().toString(),
+
+    const chatRef = ref(db, `chats/${roomId}/messages`);
+
+    if (!chatRef) return;
+
+    await push(chatRef, {
       sender: "user",
       text: inputText,
-    };
-    setMessages((prev) => [...prev, newMsg]);
+      timestamp: Date.now(),
+    });
     setInputText("");
-
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          sender: "volunteer",
-          text: "Terima kasih sudah berbagi. Ceritakan lebih banyak, saya mendengarkan.",
-        },
-      ]);
-    }, 1500);
   };
   return (
     <SafeAreaView style={styles.container}>
