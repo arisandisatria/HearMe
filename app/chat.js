@@ -20,8 +20,6 @@ export default function ChatScreen() {
 
   const { role } = useLocalSearchParams();
 
-  console.log(role);
-
   const roomId = "room_1";
 
   useEffect(() => {
