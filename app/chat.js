@@ -1,4 +1,4 @@
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -11,12 +11,16 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { db, onValue, ref } from "../services/firebase";
+import { db, onValue, push, ref } from "../services/firebase";
 
 export default function ChatScreen() {
   const router = useRouter();
   const [inputText, setInputText] = useState("");
   const [messages, setMessages] = useState([]);
+
+  const { role } = useLocalSearchParams();
+
+  console.log(role);
 
   const roomId = "room_1";
 
@@ -43,12 +47,12 @@ export default function ChatScreen() {
   const sendMessage = async () => {
     if (!inputText.trim()) return;
 
-    const chatRef = ref(db, `chats/${roomId}/messages`);
+    const chatRef = ref(db, `chat/${roomId}/messages`);
 
     if (!chatRef) return;
 
     await push(chatRef, {
-      sender: "user",
+      sender: role,
       text: inputText,
       timestamp: Date.now(),
     });

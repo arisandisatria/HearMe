@@ -13,12 +13,30 @@ export default function App() {
           Tempat aman untuk cerita dan didengar secara real-time.
         </Text>
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push("/chat")}
-        >
-          <Text style={styles.buttonText}>Mulai Ngobrol</Text>
-        </TouchableOpacity>
+        <View style={styles.roleButtonContainer}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() =>
+              router.push({
+                pathname: "/chat",
+                params: { role: "volunteer" },
+              })
+            }
+          >
+            <Text style={styles.buttonText}>Mulai sebagai Volunteer</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() =>
+              router.push({
+                pathname: "/chat",
+                params: { role: "user" },
+              })
+            }
+          >
+            <Text style={styles.buttonText}>Mulai sebagai User</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -46,6 +64,10 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     textAlign: "center",
     marginBottom: 32,
+  },
+  roleButtonContainer: {
+    width: "100%",
+    gap: 8,
   },
   button: {
     backgroundColor: "#4F46E5",
