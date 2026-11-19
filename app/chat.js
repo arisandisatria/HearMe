@@ -18,9 +18,7 @@ export default function ChatScreen() {
   const [inputText, setInputText] = useState("");
   const [messages, setMessages] = useState([]);
 
-  const { role } = useLocalSearchParams();
-
-  const roomId = "room_1";
+  const { role, roomId } = useLocalSearchParams();
 
   useEffect(() => {
     const chatRef = ref(db, `chat/${roomId}/messages`);

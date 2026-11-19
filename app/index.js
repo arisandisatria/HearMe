@@ -1,9 +1,32 @@
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
+import { db, push } from "../services/firebase";
+import { ref, set } from "firebase/database";
 
 export default function App() {
   const router = useRouter();
+
+  async function handleCreateUserRoom() {
+    try {
+      const roomRef = ref(db, "rooms");
+
+      const newRoomRef = push(roomRef);
+      const roomId = newRoomRef.key;
+
+      await set(newRoomRef, {
+        status: "waiting",
+        createdAt: Date.now(),
+      });
+
+      router.push({
+        pathname: "/chat",
+        params: { role: "user", roomId },
+      });
+    } catch (error) {
+      console.log("Failed making room:", error);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -18,7 +41,7 @@ export default function App() {
             style={styles.button}
             onPress={() =>
               router.push({
-                pathname: "/chat",
+                pathname: "/room-queue",
                 params: { role: "volunteer" },
               })
             }
@@ -27,12 +50,7 @@ export default function App() {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
-            onPress={() =>
-              router.push({
-                pathname: "/chat",
-                params: { role: "user" },
-              })
-            }
+            onPress={() => handleCreateUserRoom()}
           >
             <Text style={styles.buttonText}>Mulai sebagai User</Text>
           </TouchableOpacity>
