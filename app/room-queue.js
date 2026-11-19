@@ -1,3 +1,5 @@
+import { onValue, ref, update } from "firebase/database";
+import { useEffect, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -6,9 +8,49 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { db } from "../services/firebase";
+import { useRouter } from "expo-router";
 
 export default function RoomQueue() {
-  function handleJoinRoom() {}
+  const router = useRouter();
+  const [rooms, setRooms] = useState([]);
+
+  useEffect(() => {
+    const roomRef = ref(db, "rooms");
+
+    const getRooms = onValue(roomRef, (snapshot) => {
+      const data = snapshot.val();
+
+      if (data) {
+        const availableRooms = Object.keys(data).map((key) => ({
+          id: key,
+          ...data[key],
+        }));
+        setRooms(availableRooms);
+      } else {
+        setRooms([]);
+      }
+    });
+    return () => getRooms();
+  }, []);
+
+  async function handleJoinRoom(roomId) {
+    try {
+      const selectedRoomRef = ref(db, `/rooms/${roomId}`);
+
+      await update(selectedRoomRef, { status: "active" });
+
+      router.push({
+        pathname: "/chat",
+        params: {
+          role: "volunteer",
+          roomId,
+        },
+      });
+    } catch (error) {
+      console.log("Gagal masuk ke room:", error);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -22,12 +64,18 @@ export default function RoomQueue() {
       </View>
 
       <ScrollView style={styles.chatContainer}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => handleJoinRoom()}
-        >
-          <Text style={{ color: "#fff" }}>Room 1</Text>
-        </TouchableOpacity>
+        {rooms &&
+          rooms.map((room) => (
+            <TouchableOpacity
+              key={room.id}
+              style={styles.button}
+              onPress={() => handleJoinRoom(room.id)}
+            >
+              <Text style={{ color: "#fff" }}>
+                Room menunggu: {room.status}
+              </Text>
+            </TouchableOpacity>
+          ))}
       </ScrollView>
     </SafeAreaView>
   );
@@ -65,6 +113,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingVertical: 16,
+    gap: 8,
   },
   button: {
     backgroundColor: "#4F46E5",
