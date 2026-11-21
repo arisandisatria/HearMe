@@ -95,43 +95,51 @@ export default function RoomQueue() {
             </Text>
           </View>
         ) : (
-          rooms.map((room, index) => (
-            <TouchableOpacity
-              key={room.id}
-              activeOpacity={0.8}
-              style={styles.roomCard}
-              onPress={() => handleJoinRoom(room.id)}
-            >
-              <View style={styles.roomInfo}>
-                {room.status == "waiting" ? (
-                  <View style={styles.badgeRow}>
-                    <View
-                      style={[styles.statusDot, { backgroundColor: "#059669" }]}
-                    />
-                    <Text style={[styles.statusText, { color: "#059669" }]}>
-                      Menunggu
-                    </Text>
-                  </View>
-                ) : (
-                  <View style={styles.badgeRow}>
-                    <View
-                      style={[styles.statusDot, { backgroundColor: "#DC2626" }]}
-                    />
-                    <Text style={[styles.statusText, { color: "#DC2626" }]}>
-                      Aktif
-                    </Text>
-                  </View>
-                )}
+          rooms
+            .filter((room) => room.status == "waiting")
+            .map((room, index) => (
+              <TouchableOpacity
+                key={room.id}
+                activeOpacity={0.8}
+                style={styles.roomCard}
+                onPress={() => handleJoinRoom(room.id)}
+              >
+                <View style={styles.roomInfo}>
+                  {room.status == "waiting" ? (
+                    <View style={styles.badgeRow}>
+                      <View
+                        style={[
+                          styles.statusDot,
+                          { backgroundColor: "#059669" },
+                        ]}
+                      />
+                      <Text style={[styles.statusText, { color: "#059669" }]}>
+                        Menunggu
+                      </Text>
+                    </View>
+                  ) : (
+                    <View style={styles.badgeRow}>
+                      <View
+                        style={[
+                          styles.statusDot,
+                          { backgroundColor: "#DC2626" },
+                        ]}
+                      />
+                      <Text style={[styles.statusText, { color: "#DC2626" }]}>
+                        Aktif
+                      </Text>
+                    </View>
+                  )}
 
-                <Text style={styles.roomTitle}>Room {index + 1}</Text>
-                <Text style={styles.timeText}>
-                  {formatWaitTime(room.createdAt)}
-                </Text>
-              </View>
+                  <Text style={styles.roomTitle}>Room {index + 1}</Text>
+                  <Text style={styles.timeText}>
+                    {formatWaitTime(room.createdAt)}
+                  </Text>
+                </View>
 
-              <Text style={styles.joinText}>Ketuk untuk masuk room</Text>
-            </TouchableOpacity>
-          ))
+                <Text style={styles.joinText}>Ketuk untuk masuk room</Text>
+              </TouchableOpacity>
+            ))
         )}
       </ScrollView>
     </SafeAreaView>
